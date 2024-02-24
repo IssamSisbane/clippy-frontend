@@ -1,5 +1,6 @@
 <template>
   <AppHeader />
+  <AppSearch />
   <div v-if="error">
     <h1 class="text-3xl pb-8 text-center">Clip not found</h1>
   </div>
