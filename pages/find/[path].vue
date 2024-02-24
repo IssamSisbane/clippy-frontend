@@ -1,8 +1,15 @@
 <template>
   <AppHeader />
+  <div v-if="error">
+    <h1 class="text-3xl pb-8 text-center">Clip not found</h1>
+  </div>
+  <div v-else class="flex flex-col items-center">
+    <h1 class="text-4xl pb-4">{{ fullClipUrl }}</h1>
+    <UButton class="mb-4" icon="i-heroicons-clipboard-document" size="sm" color="primary" square variant="soft"
+      @click="copy">
+    </UButton>
 
-  <div v-if="found" class="flex flex-col items-center">
-    <h1 class="text-4xl pb-8">/{{ clip!.path }}</h1>
+
     <UCard>
       <template #header>
         <div class="w-64">
@@ -16,35 +23,34 @@
 
     </UCard>
   </div>
-  <div v-else>
-    <h1>Clip not found</h1>
-  </div>
 </template>
 
 <script lang="ts" setup>
-import { type Clip, TttEnum, ClipTypeEnum } from '@/models/clip.model';
+import { type Clip } from '@/models/clip.model';
 
+const toast = useToast()
+
+const config = useRuntimeConfig();
+const baseAppUrl = config.public.baseAppUrl;
+
+const fullClipUrl = computed(() => {
+  return baseAppUrl + '/find/' + path;
+});
 // Get path from URL
 const route = useRoute();
 const path = route.params.path;
 
-const found = ref(false);
+console.log(route.path);
 
-const { error, data: clip } = await useFetch<Clip>('http://localhost:7071/api/clip/get/' + path, {
+function copy() {
+  navigator.clipboard.writeText(fullClipUrl.value);
+  toast.add({ title: 'Clip url copied to Clipboard !', timeout: 2000 })
+  console.log('copied');
+}
+
+const { error, data: clip } = await useFetch<Clip>(`http://localhost:7071/api/clip/get/${path}`, {
   method: 'GET',
 });
-console.log(clip.value);
-console.log(error.value);
-
-if (error.value) {
-  console.log(error.value.statusMessage);
-  console.log(error.value.statusCode);
-  console.log(error.value.data);
-} else {
-  found.value = true;
-  clip.value = clip.value;
-
-}
 
 </script>
 
