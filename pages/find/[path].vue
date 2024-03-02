@@ -18,9 +18,17 @@
         </div>
 
       </template>
+
       <div class="w-64">
         <p>{{ clip!.content }}</p>
       </div>
+
+      <template #footer>
+        <div class="w-64">
+          <img :src="clip!.file" alt="clip" />
+        </div>
+      </template>
+
 
     </UCard>
   </div>
@@ -41,8 +49,6 @@ const fullClipUrl = computed(() => {
 const route = useRoute();
 const path = route.params.path;
 
-console.log(route.path);
-
 function copy() {
   navigator.clipboard.writeText(fullClipUrl.value);
   toast.add({ title: 'Clip url copied to Clipboard !', timeout: 2000 })
@@ -52,6 +58,7 @@ function copy() {
 const { error, data: clip } = await useFetch<Clip>(`http://localhost:7071/api/clip/get/${path}`, {
   method: 'GET',
 });
+
 
 </script>
 
