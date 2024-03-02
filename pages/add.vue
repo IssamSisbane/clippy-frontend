@@ -131,7 +131,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       content: event.data.content,
       file: data.file,
       file_extension: fileExtension,
-      ttl: TttEnum.TwentyFourHours,
+      ttl: event.data.ttl.value,
     };
 
     const { data: newClip, error: submitError } = await useFetch<Clip>(`${baseApiUrl}/api/clip/add`, {
