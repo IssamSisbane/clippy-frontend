@@ -139,9 +139,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     // redirect to path
     if (newClip.value) await navigateTo(`/find/${newClip.value.path}`);
-
-
-    console.log(newClip);
   } catch (error) {
     console.error('There was a problem with the fetch operation: ', error);
   }
