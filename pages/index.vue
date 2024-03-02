@@ -1,15 +1,10 @@
 <template>
   <AppHeader />
-
+  <AppSearch />
   <div class="flex items-center justify-center space-x-6">
-    <UButton size="xl" variant="soft">
+    <UButton size="md" variant="soft" icon="i-heroicons-pencil-square">
       <NuxtLink to="/add">
-        Add
-      </NuxtLink>
-    </UButton>
-    <UButton size="xl" variant="soft">
-      <NuxtLink to="/find">
-        Find
+        Create a new clip
       </NuxtLink>
     </UButton>
   </div>
@@ -18,5 +13,3 @@
 <script lang="ts" setup>
 
 </script>
-
-<style></style>

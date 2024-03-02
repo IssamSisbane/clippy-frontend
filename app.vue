@@ -1,5 +1,10 @@
 <template>
   <div>
-    <NuxtPage />
+    <NuxtLoadingIndicator />
+    <UContainer>
+      <NuxtPage />
+    </UContainer>
+
+    <UNotifications />
   </div>
 </template>

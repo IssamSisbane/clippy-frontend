@@ -1,27 +1,24 @@
-export enum TttEnum {
-    Day = "1d",
-    Week = "7d",
-    Month = "30d",
-}
+const hour = 60 * 60;
 
-export enum ClipTypeEnum {
-    Text = "text",
-    Image = "image",
-    File = "file",
+export enum TttEnum {
+    OneHour = 1 * hour,
+    SixHours = 6 * hour,
+    TwelveHours = 12 * hour,
+    TwentyFourHours = 24 * hour,
 }
 
 export interface Clip {
     path: string,
     title: string,
     content: string,
-    type: ClipTypeEnum,
-    timeToLive: TttEnum,
+    file: string,
+    file_extension: string,
+    ttl: TttEnum,
 }
 
 export function verifyClip(object: any): boolean {
     return object.path !== undefined
         && object.title !== undefined
         && object.content !== undefined
-        && object.type !== undefined
         && object.timeToLive !== undefined;
 }
