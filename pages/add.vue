@@ -28,7 +28,7 @@
       </UFormGroup>
 
       <UFormGroup name="selectMenuTimeToLive" label="Select TimeToLive option">
-        <USelectMenu v-model="state.timeToLive" placeholder="Select..." :options="ttlOptions" icon="i-heroicons-clock" />
+        <USelectMenu v-model="state.ttl" placeholder="Select..." :options="ttlOptions" icon="i-heroicons-clock" />
       </UFormGroup>
 
       <div class="flex justify-center">
@@ -60,9 +60,10 @@ const { data: paths, error } = await useFetch('http://localhost:7071/api/paths/g
 const options = paths.value as OptionPath[];
 
 const ttlOptions = [
-  { label: 'A Day', value: TttEnum.Day },
-  { label: 'A Week', value: TttEnum.Week },
-  { label: 'A Month', value: TttEnum.Month }
+  { label: '1 Hour', value: TttEnum.OneHour },
+  { label: '6 Hour', value: TttEnum.SixHours },
+  { label: '12 Hour', value: TttEnum.TwelveHours },
+  { label: '24 Hour', value: TttEnum.TwentyFourHours }
 ]
 
 const state = reactive({
@@ -70,7 +71,7 @@ const state = reactive({
   title: "",
   content: "",
   file: new File([""], "test"),
-  timeToLive: ttlOptions[0],
+  ttl: ttlOptions[0],
 })
 
 const schema = z.object({
@@ -78,7 +79,7 @@ const schema = z.object({
   title: z.string().min(1),
   content: z.string().min(1),
   file: z.any(),
-  timeToLive: z.any(),
+  ttl: z.any(),
 })
 
 type Schema = z.infer<typeof schema>
@@ -100,10 +101,12 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
   if (!file.value) return;
 
   // renaming the file as the clip path
-  const fileName = `${event.data.path.value}.${file.value.name.split('.')[1]}`;
+  const fileExtension = file.value.name.split('.')[1];
+  const fileName = `${event.data.path.value}.${fileExtension}`;
 
   const formData = new FormData();
   formData.append('file', file.value, fileName);
+  formData.append('ttl', event.data.ttl.value);
 
   // TODO : Refactor
   try {
@@ -124,7 +127,8 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       title: event.data.title,
       content: event.data.content,
       file: data.file,
-      timeToLive: TttEnum.Day,
+      file_extension: fileExtension,
+      ttl: TttEnum.TwentyFourHours,
     };
 
     const { data: newClip, error: submitError } = await useFetch<Clip>('http://localhost:7071/api/clip/add', {
