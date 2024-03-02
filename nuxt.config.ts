@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   ssr: false,
   devtools: { enabled: true },
-  modules: ['@nuxt/ui', '@nuxt/image'],
+  modules: ['@nuxt/ui'],
   runtimeConfig: {
     public: {
       baseAppUrl: '',
