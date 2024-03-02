@@ -25,7 +25,7 @@
 
       <template #footer>
         <div class="w-100">
-          <NuxtImg :src="clip!.file" alt="clip.file" />
+          <img :src="clip!.file" alt="clip.file" />
         </div>
       </template>
 
