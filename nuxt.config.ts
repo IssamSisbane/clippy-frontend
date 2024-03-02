@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       baseAppUrl: '',
+      baseApiUrl: ''
     }
   },
   nitro: {
