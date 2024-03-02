@@ -8,4 +8,14 @@ export default defineNuxtConfig({
       baseAppUrl: '',
     }
   },
+  nitro: {
+    azure: {
+      config: {
+        // ...
+        platform: {
+          apiRuntime: 'node:18'
+        }
+      }
+    }
+  }
 })
