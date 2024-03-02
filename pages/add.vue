@@ -50,7 +50,10 @@ import { TttEnum, type Clip } from '~/models/clip.model';
 import type { Path } from '~/models/path.model';
 import type { OptionPath } from '~/models/option.model';
 
-const { data: paths, error } = await useFetch('http://localhost:7071/api/paths/get/available', {
+const config = useRuntimeConfig();
+const baseApiUrl = config.public.baseApiUrl;
+
+const { data: paths, error } = await useFetch(`${baseApiUrl}/api/paths/get/available`, {
   method: 'GET',
   transform: (data: Path[]) => data.map((path: Path) => ({ value: path.id, label: path.id, emoji: path.emoji } as OptionPath))
 });
@@ -110,7 +113,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
   // TODO : Refactor
   try {
-    const response = await fetch('http://localhost:7071/api/clip/upload/file', {
+    const response = await fetch(`${baseApiUrl}/api/clip/upload/file`, {
       method: 'POST',
       body: formData,
     });
@@ -128,10 +131,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
       content: event.data.content,
       file: data.file,
       file_extension: fileExtension,
-      ttl: TttEnum.TwentyFourHours,
+      ttl: event.data.ttl.value,
     };
 
-    const { data: newClip, error: submitError } = await useFetch<Clip>('http://localhost:7071/api/clip/add', {
+    const { data: newClip, error: submitError } = await useFetch<Clip>(`${baseApiUrl}/api/clip/add`, {
       method: 'POST',
       body: JSON.stringify(clip),
     });
@@ -139,9 +142,6 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
 
     // redirect to path
     if (newClip.value) await navigateTo(`/find/${newClip.value.path}`);
-
-
-    console.log(newClip);
   } catch (error) {
     console.error('There was a problem with the fetch operation: ', error);
   }
