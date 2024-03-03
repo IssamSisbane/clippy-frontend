@@ -33,10 +33,10 @@
       </UFormGroup>
 
       <UFormGroup name="file" label="File">
-        <UInput type="file" size="sm" @change="onFileUpload($event)" />
+        <UInput type="file" size="sm" @change="onFileUpload($event)" accept="image/*" />
       </UFormGroup>
 
-      <UFormGroup name="selectMenuTimeToLive" label="Select TimeToLive option">
+      <UFormGroup name="selectMenuTimeToLive" label="TimeToLive">
         <USelectMenu v-model="state.ttl" placeholder="Select..." :options="ttlOptions" icon="i-heroicons-clock" />
       </UFormGroup>
 
