@@ -16,15 +16,15 @@
       </UFormGroup>
 
       <UFormGroup name="title" label="Title">
-        <UInput v-model="state.title" />
+        <UInput v-model="state.title" :required="true" />
       </UFormGroup>
 
       <UFormGroup name="content" label="Content">
-        <UTextarea v-model="state.content" />
+        <UTextarea v-model="state.content" :required="true" />
       </UFormGroup>
 
       <UFormGroup name="file" label="File">
-        <UInput type="file" size="sm" @change="handleFileUpload($event)" />
+        <UInput type="file" size="sm" @change="onFileUpload($event)" />
       </UFormGroup>
 
       <UFormGroup name="selectMenuTimeToLive" label="Select TimeToLive option">
@@ -38,8 +38,14 @@
       </div>
     </UForm>
   </div>
-  <div v-if="submitError">
-    <p>{{ submitError }}</p>
+  <div v-if="submitError" class="mt-4">
+    <UAlert
+      icon="i-heroicons-exclamation-triangle-solid"
+      color="red"
+      variant="solid"
+      title="Error"
+      :description="submitError"
+    />
   </div>
 </template>
 
@@ -49,16 +55,20 @@ import type { FormSubmitEvent } from '#ui/types'
 import { TttEnum, type Clip } from '~/models/clip.model';
 import type { Path } from '~/models/path.model';
 import type { OptionPath } from '~/models/option.model';
+import type { FileMetadata } from '~/models/fileInfo.model';
 
 const config = useRuntimeConfig();
 const baseApiUrl = config.public.baseApiUrl;
 
-const { data: paths, error } = await useFetch(`${baseApiUrl}/api/paths/get/available`, {
+// global page error
+let submitError = ref();
+
+const { data: paths, error: fetchPathError } = await useFetch(`${baseApiUrl}/api/paths/get/available`, {
   method: 'GET',
   transform: (data: Path[]) => data.map((path: Path) => ({ value: path.id, label: path.id, emoji: path.emoji } as OptionPath))
 });
 
-// TODO : handle error
+if (fetchPathError.value) onError('fetching paths', fetchPathError.value);
 
 const options = paths.value as OptionPath[];
 
@@ -73,80 +83,74 @@ const state = reactive({
   path: options ? options[0] : undefined,
   title: "",
   content: "",
-  file: new File([""], "test"),
   ttl: ttlOptions[0],
 })
 
 const schema = z.object({
   path: z.any(),
   title: z.string().min(1),
-  content: z.string().min(1),
-  file: z.any(),
+  content: z.any(),
   ttl: z.any(),
 })
-
 type Schema = z.infer<typeof schema>
 
 const form = ref();
-let submitError = ref();
-
 const file = ref<File | null>(null);
 
-async function handleFileUpload(event: Event) {
+async function onFileUpload(event: Event) {
   const [_file] = (event.target as HTMLInputElement).files as FileList;
   file.value = _file;
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  console.log("submit")
-  console.log(event.data.file)
+  const fileMetadata : FileMetadata | undefined = file.value ? await uploadFile(file.value, event.data.path.value, event.data.ttl.value) : undefined;
+  
+  const clip: Clip = {
+    path: event.data.path.value,
+    title: event.data.title,
+    content: event.data.content,
+    file: fileMetadata?.url || "",
+    file_extension: fileMetadata?.extension || "",
+    ttl: event.data.ttl.value,
+  };
 
-  if (!file.value) return;
+  try {
+    const newClip: Clip = await $fetch(`${baseApiUrl}/api/clip/add`, {
+      method: 'POST',
+      body: JSON.stringify(clip)
+    });
 
+    // redirect to path
+    if (newClip) await navigateTo(`/find/${newClip.path}`);
+  } catch (error) {
+    onError('file upload', error);
+  } 
+}
+
+function onError(event: string, error: any) {
+  const message = error instanceof Error ? error.message : "An error occurred";
+  submitError.value = `Error during ${event}: ${error.message}`;
+  throw new Error(error);
+}
+
+async function uploadFile(file: File, path: String, ttl: number) : Promise<FileMetadata> {
   // renaming the file as the clip path
-  const fileExtension = file.value.name.split('.')[1];
-  const fileName = `${event.data.path.value}.${fileExtension}`;
+  const fileExtension = file.name.split('.')[1];
+  const fileName = `${path}.${fileExtension}`;
 
   const formData = new FormData();
-  formData.append('file', file.value, fileName);
-  formData.append('ttl', event.data.ttl.value);
+  formData.append('file', file, fileName);
+  formData.append('ttl', ttl.toString());
 
-  // TODO : Refactor
   try {
-    const response = await fetch(`${baseApiUrl}/api/clip/upload/file`, {
+    const fileMetadata: FileMetadata = await $fetch(`${baseApiUrl}/api/clip/upload/file`, {
       method: 'POST',
       body: formData,
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log(data);
-
-    const clip: Clip = {
-      path: event.data.path.value,
-      title: event.data.title,
-      content: event.data.content,
-      file: data.file,
-      file_extension: fileExtension,
-      ttl: event.data.ttl.value,
-    };
-
-    const { data: newClip, error: submitError } = await useFetch<Clip>(`${baseApiUrl}/api/clip/add`, {
-      method: 'POST',
-      body: JSON.stringify(clip),
-    });
-
-
-    // redirect to path
-    if (newClip.value) await navigateTo(`/find/${newClip.value.path}`);
+    return fileMetadata;
   } catch (error) {
-    console.error('There was a problem with the fetch operation: ', error);
+    onError('file upload', error);
   }
-
-
 }
 </script>
 
