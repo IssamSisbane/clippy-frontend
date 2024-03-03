@@ -1,6 +1,15 @@
 <template>
   <AppHeader />
-  <div class="min-w-64 w-1/2 md:w-1/3 mx-auto">
+  <div v-if="fetchPathError" class="mt-4">
+    <UAlert
+      icon="i-heroicons-exclamation-triangle-solid"
+      color="red"
+      variant="solid"
+      title="Error"
+      :description="fetchPathError"
+    />
+  </div>
+  <div class="min-w-64 w-1/2 md:w-1/3 mx-auto" v-else>
     <UForm ref="form" :schema="schema" :state="state" class="space-y-4" @submit="onSubmit">
       <UFormGroup name="selectPaths" label="Path">
         <USelectMenu searchable searchable-placeholder="Search a person..." class="w-full lg:w-48"
@@ -68,8 +77,6 @@ const { data: paths, error: fetchPathError } = await useFetch(`${baseApiUrl}/api
   transform: (data: Path[]) => data.map((path: Path) => ({ value: path.id, label: path.id, emoji: path.emoji } as OptionPath))
 });
 
-if (fetchPathError.value) onError('fetching paths', fetchPathError.value);
-
 const options = paths.value as OptionPath[];
 
 const ttlOptions = [
@@ -99,7 +106,14 @@ const file = ref<File | null>(null);
 
 async function onFileUpload(event: Event) {
   const [_file] = (event.target as HTMLInputElement).files as FileList;
-  file.value = _file;
+  if (_file.type.includes('image')) {
+    file.value = _file;
+    console.log(_file);
+    submitError.value = null;
+  } else {
+    file.value = null;
+    submitError.value = `Please provide an image file.`;
+  }
 }
 
 async function onSubmit(event: FormSubmitEvent<Schema>) {
@@ -121,7 +135,7 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     });
 
     // redirect to path
-    if (newClip) await navigateTo(`/find/${newClip.path}`);
+    if (newClip) await navigateTo(`/clip/${newClip.path}`);
   } catch (error) {
     onError('file upload', error);
   } 

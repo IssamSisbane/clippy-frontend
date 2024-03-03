@@ -23,9 +23,9 @@
         <p>{{ clip!.content }}</p>
       </div>
 
-      <template #footer>
+      <template #footer v-if="clip.file">
         <div class="w-100">
-          <img :src="clip!.file" alt="clip.file" />
+          <img :src="clip.file" alt="clip.file" />
         </div>
       </template>
 
