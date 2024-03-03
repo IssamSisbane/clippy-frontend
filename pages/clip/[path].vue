@@ -43,11 +43,10 @@ const config = useRuntimeConfig();
 const baseAppUrl = config.public.baseAppUrl;
 const baseApiUrl = config.public.baseApiUrl;
 
-console.log('baseAppUrl', baseAppUrl);
-
 const fullClipUrl = computed(() => {
   return baseAppUrl + '/find/' + path;
 });
+
 // Get path from URL
 const route = useRoute();
 const path = route.params.path;
@@ -61,7 +60,6 @@ function copy() {
 const { error, data: clip } = await useFetch<Clip>(`${baseApiUrl}/api/clip/get/${path}`, {
   method: 'GET',
 });
-
 
 </script>
 
