@@ -1,6 +1,19 @@
-# Nuxt 3 Minimal Starter
+# Clippy FRONTEND
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+This is the backend of the clippy project.
+
+Click [here](https://github.com/IssamSisbane/clippy-backend) to get the backend.
+
+Click [here](https://issamsisbane.github.io/portfolio/en/projects/clippy/) to get more informations about this project.
+
+## Description
+The goal of this project is to create a website that allows for the ephemeral sharing of information via simple URLs for copying and pasting.
+
+## Technologies Used
+
+* `Nuxt`
+* `Nuxt-ui`
+* `Typescript`
 
 ## Setup
 
