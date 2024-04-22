@@ -1,6 +1,6 @@
-# Clippy FRONTEND
+# CLIPPY FRONTEND
 
-This is the backend of the clippy project.
+This is the frontend of the clippy project.
 
 Click [here](https://github.com/IssamSisbane/clippy-backend) to get the backend.
 
